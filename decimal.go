@@ -1000,7 +1000,7 @@ func (d Decimal) MarshalBinary() (data []byte, err error) {
 // GetBSON implements the bson.Getter interface
 func (d Decimal) GetBSON() (interface{}, error) {
 	// Pass through string to create Mongo Decimal128 type
-	dec128, err := bson.ParseDecimal128(d.String())
+	dec128, err := bson.ParseDecimal128(d.Truncate(34).String())
 	if err != nil {
 		return nil, err
 	}
