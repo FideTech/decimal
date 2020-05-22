@@ -999,26 +999,23 @@ func (d Decimal) MarshalBinary() (data []byte, err error) {
 
 // GetBSON implements the bson.Getter interface
 func (d Decimal) GetBSON() (interface{}, error) {
-	// Pass through string to create Mongo Decimal128 type
-	dec128, err := bson.ParseDecimal128(d.Truncate(34).String())
-	if err != nil {
-		return nil, err
-	}
-	return dec128, nil
+	//Sadly, it must be saved as a string due to being out of range of the Decimal128
+	return d.String(), nil
 }
 
 // SetBSON implements the bson.Setter interface
 func (d *Decimal) SetBSON(raw bson.Raw) error {
 	// Unmarshal as Mongo Decimal128 first then pass through string to obtain Decimal
-	var dec128 bson.Decimal128
-	berr := raw.Unmarshal(&dec128)
-	if berr != nil {
+	var value string
+	if berr := raw.Unmarshal(&value); berr != nil {
 		return berr
 	}
-	dec, derr := NewFromString(dec128.String())
+
+	dec, derr := NewFromString(value)
 	if derr != nil {
 		return derr
 	}
+
 	*d = dec
 	return nil
 }
