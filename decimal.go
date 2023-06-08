@@ -1001,21 +1001,20 @@ func (d Decimal) MarshalBinary() (data []byte, err error) {
 
 // GetBSON implements the bson.Getter interface
 func (d Decimal) GetBSON() (interface{}, error) {
-	//Sadly, it must be saved as a string due to being out of range of the Decimal128
+	//It must be saved as a string due to being out of range of the Decimal128
 	return d.String(), nil
 }
 
 // SetBSON implements the bson.Setter interface
 func (d *Decimal) SetBSON(raw bson.Raw) error {
-	// Unmarshal as Mongo Decimal128 first then pass through string to obtain Decimal
 	var value string
-	if berr := raw.Unmarshal(&value); berr != nil {
-		return berr
+	if err := raw.Unmarshal(&value); err != nil {
+		return err
 	}
 
-	dec, derr := NewFromString(value)
-	if derr != nil {
-		return derr
+	dec, err := NewFromString(value)
+	if err != nil {
+		return err
 	}
 
 	*d = dec
@@ -1301,13 +1300,13 @@ func (d *NullDecimal) SetBSON(raw bson.Raw) error {
 
 	// Unmarshal as string to obtain Decimal
 	var value string
-	if berr := raw.Unmarshal(&value); berr != nil {
-		return berr
+	if err := raw.Unmarshal(&value); err != nil {
+		return err
 	}
 
-	dec, derr := NewFromString(value)
-	if derr != nil {
-		return derr
+	dec, err := NewFromString(value)
+	if err != nil {
+		return err
 	}
 
 	d.Valid = true
