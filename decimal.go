@@ -1282,6 +1282,40 @@ func (d NullDecimal) MarshalJSON() ([]byte, error) {
 	return d.Decimal.MarshalJSON()
 }
 
+// GetBSON implements the bson.Getter interface
+func (d NullDecimal) GetBSON() (interface{}, error) {
+	if !d.Valid {
+		return nil, nil
+	}
+
+	//It must be saved as a string due to being out of range of the Decimal128
+	return d.Decimal.String(), nil
+}
+
+// SetBSON implements the bson.Setter interface
+func (d *NullDecimal) SetBSON(raw bson.Raw) error {
+	if len(raw.Data) == 0 {
+		d.Valid = false
+		return nil
+	}
+
+	// Unmarshal as string to obtain Decimal
+	var value string
+	if berr := raw.Unmarshal(&value); berr != nil {
+		return berr
+	}
+
+	dec, derr := NewFromString(value)
+	if derr != nil {
+		return derr
+	}
+
+	d.Valid = true
+	d.Decimal = dec
+
+	return nil
+}
+
 // Trig functions
 
 // Atan returns the arctangent, in radians, of x.
