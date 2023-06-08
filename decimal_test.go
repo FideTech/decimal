@@ -525,9 +525,18 @@ func TestJSON(t *testing.T) {
 			Amount Decimal `json:"amount"`
 		}
 		docStr := `{"amount":"` + s + `"}`
+		docStrWithSpace := `{"amount":" ` + s + ` "}`
 		docStrNumber := `{"amount":` + s + `}`
 		err := json.Unmarshal([]byte(docStr), &doc)
 		if err != nil {
+			t.Errorf("error unmarshaling %s: %v", docStr, err)
+		} else if doc.Amount.String() != s {
+			t.Errorf("expected %s, got %s (%s, %d)",
+				s, doc.Amount.String(),
+				doc.Amount.value.String(), doc.Amount.exp)
+		}
+
+		if err := json.Unmarshal([]byte(docStrWithSpace), &doc); err != nil {
 			t.Errorf("error unmarshaling %s: %v", docStr, err)
 		} else if doc.Amount.String() != s {
 			t.Errorf("expected %s, got %s (%s, %d)",
