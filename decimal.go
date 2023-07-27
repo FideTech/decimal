@@ -134,6 +134,12 @@ func NewFromString(value string) (Decimal, error) {
 	var intString string
 	var exp int64
 
+	// When an empty string is passed, we return 0
+	// Since the zero value of Decimal is 0
+	if value == "" {
+		return Zero, nil
+	}
+
 	// Check if number is using scientific notation
 	eIndex := strings.IndexAny(value, "Ee")
 	if eIndex != -1 {
