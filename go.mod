@@ -1,4 +1,4 @@
-module github.com/shopspring/decimal
+module github.com/FideTech/decimal
 
 go 1.18
 

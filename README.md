@@ -4,7 +4,9 @@
 [![GoDoc](https://godoc.org/github.com/shopspring/decimal?status.svg)](https://godoc.org/github.com/shopspring/decimal) 
 [![Go Report Card](https://goreportcard.com/badge/github.com/shopspring/decimal)](https://goreportcard.com/report/github.com/shopspring/decimal)
 
-Arbitrary-precision fixed-point decimal numbers in go.
+Arbitrary-precision fixed-point decimal numbers in go. This **fork** contains support for storing the decimals as strings inside of mongodb v2 official driver.
+
+Parent project: https://github.com/shopspring/decimal
 
 _Note:_ Decimal library can "only" represent numbers with a maximum of 2^31 digits after the decimal point.
 
@@ -36,7 +38,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/shopspring/decimal"
+	"github.com/FideTech/decimal"
 )
 
 func main() {
