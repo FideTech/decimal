@@ -25,6 +25,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // DivisionPrecision is the number of decimal places in the result when it
@@ -1900,6 +1902,36 @@ func (d Decimal) GobEncode() ([]byte, error) {
 // GobDecode implements the gob.GobDecoder interface for gob serialization.
 func (d *Decimal) GobDecode(data []byte) error {
 	return d.UnmarshalBinary(data)
+}
+
+// MarshalBSONValue implements the bson.ValueMarshaler interface for the
+// official MongoDB Go Driver v2. The Decimal is stored as a BSON string
+// rather than a Decimal128 because Decimal128 cannot represent the full
+// range/precision of Decimal values.
+func (d Decimal) MarshalBSONValue() (byte, []byte, error) {
+	t, data, err := bson.MarshalValue(d.String())
+	return byte(t), data, err
+}
+
+// UnmarshalBSONValue implements the bson.ValueUnmarshaler interface for the
+// official MongoDB Go Driver v2. It accepts a BSON string previously written
+// by MarshalBSONValue.
+func (d *Decimal) UnmarshalBSONValue(t byte, data []byte) error {
+	rv := bson.RawValue{Type: bson.Type(t), Value: data}
+	var s string
+	if err := rv.Unmarshal(&s); err != nil {
+		return err
+	}
+	if s == "" {
+		*d = Decimal{}
+		return nil
+	}
+	dec, err := NewFromString(s)
+	if err != nil {
+		return err
+	}
+	*d = dec
+	return nil
 }
 
 // DecodeSpanner decodes a Spanner value into a Decimal
